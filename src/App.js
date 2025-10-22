@@ -47,7 +47,21 @@ const tempWatchedData = [
   },
 ];
 
+const average = (arr) =>
+  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+// ※ arr.reduce → 누적 계산
+// acc: 누적값(accumulator)
+// cur: 현재 요소(currentValue)
+// i: 현재 인덱스(index)
+// arr: 원본 배열(array)
+// 0: 초기 누적값
+
 export default function App() {
+  // ※ 컴포넌트를 나누는 기준
+  // 1. Logical Seperation Content
+  // 2. Reusability
+  // 3. Responsibility and Complexity
+  // 4. Personal Coding Style
   return (
     <>
       <NavBar />
@@ -56,15 +70,12 @@ export default function App() {
   );
 }
 
-const average = (arr) =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
-
 function NavBar() {
   return (
     <nav className="nav-bar">
       <Logo />
       <Search />
-      <NumResults />
+      <NumResult />
     </nav>
   );
 }
@@ -92,7 +103,7 @@ function Search() {
   );
 }
 
-function NumResults() {
+function NumResult() {
   return (
     <p className="num-results">
       Found <strong>X</strong> results
@@ -127,7 +138,6 @@ function ListBox() {
 
 function MovieList() {
   const [movies, setMovies] = useState(tempMovieData);
-
   return (
     <ul className="list">
       {movies?.map((movie) => (
@@ -139,7 +149,7 @@ function MovieList() {
 
 function Movie({ movie }) {
   return (
-    <li key={movie.imdbID}>
+    <li>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -167,7 +177,7 @@ function WatchedBox() {
       {isOpen2 && (
         <>
           <WatchedSummary watched={watched} />
-          <WatchedMoviesList />
+          <WatchedMovieList watched={watched} />
         </>
       )}
     </div>
@@ -204,7 +214,7 @@ function WatchedSummary({ watched }) {
   );
 }
 
-function WatchedMoviesList({ watched }) {
+function WatchedMovieList({ watched }) {
   return (
     <ul className="list">
       {watched.map((movie) => (
@@ -216,7 +226,7 @@ function WatchedMoviesList({ watched }) {
 
 function WatchedMovie({ movie }) {
   return (
-    <li key={movie.imdbID}>
+    <li>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
