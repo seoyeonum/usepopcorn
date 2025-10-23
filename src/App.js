@@ -57,11 +57,6 @@ const average = (arr) =>
 // 0: 초기 누적값
 
 export default function App() {
-  // ※ 컴포넌트를 나누는 기준
-  // 1. Logical Seperation Content
-  // 2. Reusability
-  // 3. Responsibility and Complexity
-  // 4. Personal Coding Style
   return (
     <>
       <NavBar />
@@ -70,6 +65,27 @@ export default function App() {
   );
 }
 
+// ※ 컴포넌트를 나누는 기준
+// 1. Logical Seperation Content
+// 2. Reusability
+// 3. Responsibility and Complexity
+// 4. Personal Coding Style
+
+// ※ Component Categories
+// Most of our components will naturally fall into one of three categories:
+// (1) Stateless / presentational components
+// - No state
+// - Can receive props and simply present receieved data or other content
+// - Usually small and reusable
+// (2) Stateful components
+// - Have state
+// - Can still be reusable
+// (3) Structural components
+// - "Pages", "layouts" or "screens" of the app
+// - Result of composition
+// - Can be huge and non-reusable (but don't have to)
+
+// (3) Structural components
 function NavBar() {
   return (
     <nav className="nav-bar">
@@ -80,6 +96,7 @@ function NavBar() {
   );
 }
 
+// (1) Stateless / presentational components
 function Logo() {
   return (
     <div className="logo">
@@ -89,6 +106,7 @@ function Logo() {
   );
 }
 
+// (2) Stateful components
 function Search() {
   const [query, setQuery] = useState('');
 
@@ -103,6 +121,7 @@ function Search() {
   );
 }
 
+// (1) Stateless / presentational components
 function NumResult() {
   return (
     <p className="num-results">
@@ -111,6 +130,7 @@ function NumResult() {
   );
 }
 
+// (3) Structural components
 function Main() {
   return (
     <main className="main">
@@ -120,6 +140,7 @@ function Main() {
   );
 }
 
+// (2) Stateful components
 function ListBox() {
   const [isOpen1, setIsOpen1] = useState(true);
 
@@ -136,6 +157,7 @@ function ListBox() {
   );
 }
 
+// (2) Stateful components
 function MovieList() {
   const [movies, setMovies] = useState(tempMovieData);
   return (
@@ -147,6 +169,7 @@ function MovieList() {
   );
 }
 
+// (1) Stateless / presentational components
 function Movie({ movie }) {
   return (
     <li>
@@ -162,6 +185,7 @@ function Movie({ movie }) {
   );
 }
 
+// (2) Stateful components
 function WatchedBox() {
   const [watched, setWatched] = useState(tempWatchedData);
   const [isOpen2, setIsOpen2] = useState(true);
@@ -184,6 +208,7 @@ function WatchedBox() {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -214,6 +239,7 @@ function WatchedSummary({ watched }) {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedMovieList({ watched }) {
   return (
     <ul className="list">
@@ -224,6 +250,7 @@ function WatchedMovieList({ watched }) {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedMovie({ movie }) {
   return (
     <li>
