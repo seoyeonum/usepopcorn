@@ -56,11 +56,16 @@ const average = (arr) =>
 // arr: 원본 배열(array)
 // 0: 초기 누적값
 
+// ※ Prop Drilling
+// : 중간 단계에 해당하지 않더라도 필요한 하위 컴포넌트에 값을 전달하기 위해 props를 전달하는 과정
+// → Component Conposition 이 해결책이 될 수 있다!
+
 export default function App() {
+  const [movies, setMovies] = useState(tempMovieData);
   return (
     <>
-      <NavBar />
-      <Main />
+      <NavBar movies={movies} />
+      <Main movies={movies} />
     </>
   );
 }
@@ -86,12 +91,12 @@ export default function App() {
 // - Can be huge and non-reusable (but don't have to)
 
 // (3) Structural components
-function NavBar() {
+function NavBar({ movies }) {
   return (
     <nav className="nav-bar">
       <Logo />
       <Search />
-      <NumResult />
+      <NumResult movies={movies} />
     </nav>
   );
 }
@@ -122,26 +127,26 @@ function Search() {
 }
 
 // (1) Stateless / presentational components
-function NumResult() {
+function NumResult({ movies }) {
   return (
     <p className="num-results">
-      Found <strong>X</strong> results
+      Found <strong>{movies.length}</strong> results
     </p>
   );
 }
 
 // (3) Structural components
-function Main() {
+function Main({ movies }) {
   return (
     <main className="main">
-      <ListBox />
+      <ListBox movies={movies} />
       <WatchedBox />
     </main>
   );
 }
 
 // (2) Stateful components
-function ListBox() {
+function ListBox({ movies }) {
   const [isOpen1, setIsOpen1] = useState(true);
 
   return (
@@ -152,14 +157,13 @@ function ListBox() {
       >
         {isOpen1 ? '–' : '+'}
       </button>
-      {isOpen1 && <MovieList />}
+      {isOpen1 && <MovieList movies={movies} />}
     </div>
   );
 }
 
 // (2) Stateful components
-function MovieList() {
-  const [movies, setMovies] = useState(tempMovieData);
+function MovieList({ movies }) {
   return (
     <ul className="list">
       {movies?.map((movie) => (
