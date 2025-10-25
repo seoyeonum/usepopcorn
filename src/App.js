@@ -58,7 +58,13 @@ const average = (arr) =>
 
 // ※ Prop Drilling
 // : 중간 단계에 해당하지 않더라도 필요한 하위 컴포넌트에 값을 전달하기 위해 props를 전달하는 과정
-// → Component Conposition 이 해결책이 될 수 있다!
+// → Component Composition 이 해결책이 될 수 있다!
+
+// ※ Component Composition
+// : 단순히 component를 "사용하는" 것이 아니라,
+//   children props를 활용하여 서로 다른 component를 결합하는 형태
+// 1) Create highly reusable and flecible components
+// 2) Fix prop drilling (great for layouts)
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
