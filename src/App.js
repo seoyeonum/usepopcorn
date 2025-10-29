@@ -79,6 +79,20 @@ export default function App() {
       </NavBar>
 
       <Main>
+        {/*
+        children 의 대안으로 element 형태로 전달도 가능! → React Router 에서 이렇게 쓰임
+        단, 대체로 chilren 을 선호하는 편!
+       */}
+        <Box element={<MovieList movies={movies} />} />
+        <Box
+          element={
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          }
+        />
+        {/*
         <Box>
           <MovieList movies={movies} />
         </Box>
@@ -87,6 +101,7 @@ export default function App() {
           <WatchedSummary watched={watched} />
           <WatchedMovieList watched={watched} />
         </Box>
+        */}
       </Main>
     </>
   );
@@ -162,7 +177,7 @@ function Main({ children }) {
 }
 
 // (2) Stateful components
-function Box({ children }) {
+function Box({ element }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -170,7 +185,7 @@ function Box({ children }) {
       <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
         {isOpen ? '–' : '+'}
       </button>
-      {isOpen && children}
+      {isOpen && element}
     </div>
   );
 }
