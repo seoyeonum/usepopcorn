@@ -1,5 +1,12 @@
 import { useState } from 'react';
 
+// ※ Props as an Component API
+// We need to find the right balance
+// between too little and too many props,
+// that works for both the consumer and the creator.
+// → component 를 만들 때 "제작자" 와 "소비자" 관점에서 생각하는 습관!
+// → 적절한 default value를 props에 부여하는 것도 중요
+
 const containerStyle = {
   display: 'flex',
   alignItems: 'center',
