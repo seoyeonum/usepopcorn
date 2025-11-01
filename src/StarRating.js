@@ -1,4 +1,10 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
+
+// ※ prop-types
+// prop-types 패키지는 이미 CRA 에 포함되어 있으므로 추가 설치 불필요
+// 실제로 현재 개발자들은 PropTypes 를 지정하기 보단 TypeScript 활용
+// 학습을 위해 한 번만 사용해보고, 필요 시 이후에는 TypeScript를 배워보자!
 
 // ※ Props as an Component API
 // We need to find the right balance
@@ -15,6 +21,16 @@ const containerStyle = {
 
 const starContainerStyle = {
   display: 'flex',
+};
+
+StarRating.propTypes = {
+  maxRating: PropTypes.number,
+  defaultRating: PropTypes.number,
+  color: PropTypes.string,
+  size: PropTypes.number,
+  messages: PropTypes.array,
+  className: PropTypes.string,
+  onSetRating: PropTypes.func,
 };
 
 export default function StarRating({
