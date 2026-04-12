@@ -76,11 +76,18 @@ const KEY = '25a08b93';
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
+  const query = 'frozen';
 
   useEffect(function () {
-    fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=frozen`)
-      .then((res) => res.json())
-      .then((data) => setMovies(data.Search));
+    async function fetchMovies() {
+      const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+      );
+      const data = await res.json();
+      setMovies(data.Search);
+      console.log(data.Search);
+    }
+    fetchMovies();
   }, []);
   // ※ [] (빈 배열)은 dependancy array로,
   // 지정한 효과가 마운트(mount)에서만 실행되도록 한다.
