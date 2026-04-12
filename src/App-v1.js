@@ -1,3 +1,5 @@
+// Keep the App.js file for the starrating test as a reference
+
 import { useState } from 'react';
 
 const tempMovieData = [
@@ -56,12 +58,6 @@ const average = (arr) =>
 // arr: 원본 배열(array)
 // 0: 초기 누적값
 
-// ※ KEY를 외부에 만드는 이유?
-// : 변수 정의가 렌더링 로직의 일부인 경우, 데이터 컴포넌트가 렌더링될 때마다 다시 만들어짐
-// 큰 문제는 아니지만 컴포넌트 내부에 의존하지 않는 변수 정의 시 외부에 정의하는 습관을 들이는 것이 좋다.
-// => config.js로 분리?
-const KEY = '25a08b93';
-
 // ※ Prop Drilling
 // : 중간 단계에 해당하지 않더라도 필요한 하위 컴포넌트에 값을 전달하기 위해 props를 전달하는 과정
 // → Component Composition 이 해결책이 될 수 있다!
@@ -74,17 +70,8 @@ const KEY = '25a08b93';
 
 // Component Composition 을 활용해보자!
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-
-  fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=zootopia`)
-    .then((res) => res.json())
-    .then((data) => console.log(data.Search));
-  // .then((data) => setMovies(data.Search));
-  //------------------------------
-  // 위 구간은 데이터 컴포넌트가 렌더링될 때마다 새로 만들어진다.
-  // react에서 fetch를 쓰면 useState 업데이트 시(setMovies()) 무한히 렌더링되는 상황이 발생한다.
-  // 따라서, 이를 해결하기 위해 useEffect를 사용해야 한다.
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
