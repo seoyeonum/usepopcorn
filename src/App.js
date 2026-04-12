@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const tempMovieData = [
   {
@@ -77,14 +77,14 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
 
-  fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=zootopia`)
-    .then((res) => res.json())
-    .then((data) => console.log(data.Search));
-  // .then((data) => setMovies(data.Search));
-  //------------------------------
-  // 위 구간은 데이터 컴포넌트가 렌더링될 때마다 새로 만들어진다.
-  // react에서 fetch를 쓰면 useState 업데이트 시(setMovies()) 무한히 렌더링되는 상황이 발생한다.
-  // 따라서, 이를 해결하기 위해 useEffect를 사용해야 한다.
+  useEffect(function () {
+    fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=frozen`)
+      .then((res) => res.json())
+      .then((data) => setMovies(data.Search));
+  }, []);
+  // ※ [] (빈 배열)은 dependancy array로,
+  // 지정한 효과가 마운트(mount)에서만 실행되도록 한다.
+  // 즉, App component가 렌더링될 때 한 번만 실행되도록 한다.
 
   return (
     <>
