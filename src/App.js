@@ -78,7 +78,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const query = 'agadsfds';
+  const query = 'sdfasf';
 
   useEffect(function () {
     async function fetchMovies() {
@@ -120,7 +120,7 @@ export default function App() {
         <Box>
           {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
           {isLoading && <Loader />}
-          {isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && <MovieList movies={movies} />}
           {error && <ErrorMessage message={error} />}
         </Box>
 
@@ -133,30 +133,12 @@ export default function App() {
   );
 }
 
-// ※ 컴포넌트를 나누는 기준
-// 1. Logical Seperation Content
-// 2. Reusability
-// 3. Responsibility and Complexity
-// 4. Personal Coding Style
-
-// ※ Component Categories
-// Most of our components will naturally fall into one of three categories:
-// (1) Stateless / presentational components
-// - No state
-// - Can receive props and simply present receieved data or other content
-// - Usually small and reusable
-// (2) Stateful components
-// - Have state
-// - Can still be reusable
 // (3) Structural components
-// - "Pages", "layouts" or "screens" of the app
-// - Result of composition
-// - Can be huge and non-reusable (but don't have to)
-
 function Loader() {
   return <p className="loader">Loading...</p>;
 }
 
+// (3) Structural components
 function ErrorMessage({ message }) {
   return (
     <p className="error">
@@ -320,3 +302,46 @@ function WatchedMovie({ movie }) {
     </li>
   );
 }
+
+///////////////////////////////////////////
+
+// ※ 컴포넌트를 나누는 기준
+// 1. Logical Seperation Content
+// 2. Reusability
+// 3. Responsibility and Complexity
+// 4. Personal Coding Style
+
+// ※ Component Categories
+// Most of our components will naturally fall into one of three categories:
+// (1) Stateless / presentational components
+// - No state
+// - Can receive props and simply present receieved data or other content
+// - Usually small and reusable
+// (2) Stateful components
+// - Have state
+// - Can still be reusable
+// (3) Structural components
+// - "Pages", "layouts" or "screens" of the app
+// - Result of composition
+// - Can be huge and non-reusable (but don't have to)
+
+///////////////////////////////////////////
+
+// ※ The dependency array
+// - By default, effects run after every render.
+//  We can prevent that by passing a dependency array.
+// - Without the dependency array, React doesn't know when to run the effect.
+// - Each time one of the dependencies changes, the effect will be executed again.
+// - Every state variable and prop used inside the effect MUST be included in the dependency array.
+// (Otherwise, we get a "stale closure")
+
+// ※ The mechanics of effects
+// - useEffect is like an event listener that is listening for one dependency to change.
+//  Whenever a dependency changes, it will execute the effect again.
+// - Effects react to updates to state and props used inside the effect (the dependencies).
+//  So effects are "reactive" (like state updates re-rendering the UI)
+
+// ※ Synchronization and lifecycle
+// useEffect(fn, [x, y, z]): mount 일 때와 x,y,z가 update 되어 re-render 일 때 실행
+// useEffect(fn, []): mount 일 때만 실행 (only initial render)
+// useEffect(fn): 모든 render에 대해 실행 (모든 것에 대해 동기화)
