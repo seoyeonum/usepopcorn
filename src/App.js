@@ -80,8 +80,9 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const tempQuery = 'frozen';
+  // const tempQuery = 'frozen';
 
+  /*
   // ※ Testing the results according to the dependency array
   useEffect(function () {
     console.log('After initial render');
@@ -99,31 +100,43 @@ export default function App() {
   );
 
   console.log('During render');
+  */
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${tempQuery}`,
-        );
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError('');
 
-        if (!res.ok)
-          throw new Error('Something went wrong with fetching movies');
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+          );
 
-        const data = await res.json();
-        if (data.Response === 'False') throw new Error('Movie not found');
+          if (!res.ok)
+            throw new Error('Something went wrong with fetching movies');
 
-        setMovies(data.Search);
-      } catch (err) {
-        console.error(err.message);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+          const data = await res.json();
+          if (data.Response === 'False') throw new Error('Movie not found');
+
+          setMovies(data.Search);
+        } catch (err) {
+          console.error(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError('');
+        return;
+      }
+      fetchMovies();
+    },
+    [query],
+  );
   // ※ [] (빈 배열)은 dependancy array로,
   // 지정한 효과가 마운트(mount)에서만 실행되도록 한다.
   // 즉, App component가 렌더링될 때 한 번만 실행되도록 한다.
