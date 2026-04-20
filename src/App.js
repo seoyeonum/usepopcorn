@@ -75,7 +75,7 @@ const KEY = '25a08b93';
 
 // Component Composition 을 활용해보자!
 export default function App() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState('frozen');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -362,6 +362,21 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     [selectedId],
   );
 
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      // cleanup function
+      // : 컴포넌트 마운트 해제 이후 발생하지만 JS의 closure 개념 덕에 title을 기억
+      return function () {
+        document.title = 'usePopcorn';
+        console.log(`Clean up effect for movie ${title}`);
+      };
+    },
+    [title],
+  );
+
   return (
     <div className="details">
       {isLoading && <Loader />}
@@ -537,3 +552,16 @@ function WatchedMovie({ movie, onDeleteWatched }) {
 // useEffect(fn, [x, y, z]): mount 일 때와 x,y,z가 update 되어 re-render 일 때 실행
 // useEffect(fn, []): mount 일 때만 실행 (only initial render)
 // useEffect(fn): 모든 render에 대해 실행 (모든 것에 대해 동기화)
+
+//////////////////////////////////////////
+
+// ※ useEffect Cleanup function
+// - function that we can return from an effect (optional)
+// - runs on two different occasions
+//  1) before the effect is executed again
+//  2) after a component has unmounted
+// - necessary whenever the side effect keeps happening
+//   after the component has been re-rendered or unmounted
+// - each effect should do only one thing!
+//   use one useEffect hook for each side effect.
+//   this makes effect easier to clean up.
