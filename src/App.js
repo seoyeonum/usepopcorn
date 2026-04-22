@@ -75,7 +75,7 @@ const KEY = '25a08b93';
 
 // Component Composition 을 활용해보자!
 export default function App() {
-  const [query, setQuery] = useState('frozen');
+  const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -117,6 +117,7 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
   useEffect(
     function () {
       const controller = new AbortController();
@@ -140,9 +141,8 @@ export default function App() {
           setMovies(data.Search);
           setError('');
         } catch (err) {
-          console.error(err.message);
-
           if (err.name !== 'AbortError') {
+            console.error(err.message);
             setError(err.message);
           }
         } finally {
@@ -155,6 +155,8 @@ export default function App() {
         setError('');
         return;
       }
+
+      handleCloseMovie();
       fetchMovies();
 
       // cleanup function
@@ -351,6 +353,23 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
   useEffect(
     function () {
+      function callback(e) {
+        if (e.code === 'Escape') {
+          onCloseMovie();
+        }
+      }
+
+      document.addEventListener('keydown', callback);
+
+      return function () {
+        document.removeEventListener('keydown', callback);
+      };
+    },
+    [onCloseMovie],
+  );
+
+  useEffect(
+    function () {
       async function getMovieDetails() {
         try {
           setIsLoading(true);
@@ -383,7 +402,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       // : 컴포넌트 마운트 해제 이후 발생하지만 JS의 closure 개념 덕에 title을 기억
       return function () {
         document.title = 'usePopcorn';
-        console.log(`Clean up effect for movie ${title}`);
+        // console.log(`Clean up effect for movie ${title}`);
       };
     },
     [title],
