@@ -1,11 +1,79 @@
 import { useEffect, useState } from 'react';
 import StarRating from './StarRating';
 
+const tempMovieData = [
+  {
+    imdbID: 'tt1375666',
+    Title: 'Inception',
+    Year: '2010',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+  },
+  {
+    imdbID: 'tt0133093',
+    Title: 'The Matrix',
+    Year: '1999',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg',
+  },
+  {
+    imdbID: 'tt6751668',
+    Title: 'Parasite',
+    Year: '2019',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg',
+  },
+];
+
+const tempWatchedData = [
+  {
+    imdbID: 'tt1375666',
+    Title: 'Inception',
+    Year: '2010',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+    runtime: 148,
+    imdbRating: 8.8,
+    userRating: 10,
+  },
+  {
+    imdbID: 'tt0088763',
+    Title: 'Back to the Future',
+    Year: '1985',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg',
+    runtime: 116,
+    imdbRating: 8.5,
+    userRating: 9,
+  },
+];
+
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+// ※ arr.reduce → 누적 계산
+// acc: 누적값(accumulator)
+// cur: 현재 요소(currentValue)
+// i: 현재 인덱스(index)
+// arr: 원본 배열(array)
+// 0: 초기 누적값
 
+// ※ KEY를 외부에 만드는 이유?
+// : 변수 정의가 렌더링 로직의 일부인 경우, 데이터 컴포넌트가 렌더링될 때마다 다시 만들어짐
+// 큰 문제는 아니지만 컴포넌트 내부에 의존하지 않는 변수 정의 시 외부에 정의하는 습관을 들이는 것이 좋다.
+// => config.js로 분리?
 const KEY = '25a08b93';
 
+// ※ Prop Drilling
+// : 중간 단계에 해당하지 않더라도 필요한 하위 컴포넌트에 값을 전달하기 위해 props를 전달하는 과정
+// → Component Composition 이 해결책이 될 수 있다!
+
+// ※ Component Composition
+// : 단순히 component를 "사용하는" 것이 아니라,
+//   children props를 활용하여 서로 다른 component를 결합하는 형태
+// 1) Create highly reusable and flecible components
+// 2) Fix prop drilling (great for layouts)
+
+// Component Composition 을 활용해보자!
 export default function App() {
   const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
@@ -13,6 +81,26 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+
+  /*
+  // ※ Testing the results according to the dependency array
+  useEffect(function () {
+    console.log('After initial render');
+  }, []);
+
+  useEffect(function () {
+    console.log('After every render');
+  });
+
+  useEffect(
+    function () {
+      console.log('D');
+    },
+    [query],
+  );
+
+  console.log('During render');
+  */
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -78,6 +166,9 @@ export default function App() {
     },
     [query],
   );
+  // ※ [] (빈 배열)은 dependancy array로,
+  // 지정한 효과가 마운트(mount)에서만 실행되도록 한다.
+  // 즉, App component가 렌더링될 때 한 번만 실행되도록 한다.
 
   return (
     <>
@@ -88,6 +179,7 @@ export default function App() {
 
       <Main>
         <Box>
+          {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
           {isLoading && <Loader />}
           {!isLoading && !error && (
             <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
@@ -118,10 +210,12 @@ export default function App() {
   );
 }
 
+// (3) Structural components
 function Loader() {
   return <p className="loader">Loading...</p>;
 }
 
+// (3) Structural components
 function ErrorMessage({ message }) {
   return (
     <p className="error">
@@ -130,6 +224,7 @@ function ErrorMessage({ message }) {
   );
 }
 
+// (3) Structural components
 function NavBar({ children }) {
   return (
     <nav className="nav-bar">
@@ -139,6 +234,7 @@ function NavBar({ children }) {
   );
 }
 
+// (1) Stateless / presentational components
 function Logo() {
   return (
     <div className="logo">
@@ -148,6 +244,7 @@ function Logo() {
   );
 }
 
+// (2) Stateful components
 function Search({ query, setQuery }) {
   return (
     <input
@@ -160,6 +257,7 @@ function Search({ query, setQuery }) {
   );
 }
 
+// (1) Stateless / presentational components
 function NumResult({ movies }) {
   return (
     <p className="num-results">
@@ -168,10 +266,12 @@ function NumResult({ movies }) {
   );
 }
 
+// (3) Structural components
 function Main({ children }) {
   return <main className="main">{children}</main>;
 }
 
+// (2) Stateful components
 function Box({ children }) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -185,6 +285,7 @@ function Box({ children }) {
   );
 }
 
+// (2) Stateful components
 function MovieList({ movies, onSelectMovie }) {
   return (
     <ul className="list list-movies">
@@ -195,6 +296,7 @@ function MovieList({ movies, onSelectMovie }) {
   );
 }
 
+// (1) Stateless / presentational components
 function Movie({ movie, onSelectMovie }) {
   return (
     <li onClick={() => onSelectMovie(movie.imdbID)}>
@@ -234,27 +336,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     Genre: genre,
   } = movie;
 
-  // useState 의 rendering 에 대한 실험 코드1
-  /* eslint-disable*/
-  // if (imdbRating > 8) [isTop, setIsTop] = useState(true);
-  // if (imdbRating > 8) return <p>Greatest ever!</p>;
-
-  // const [isTop, setIsTop] = useState(imdbRating > 8);
-  // console.log(isTop);
-  // useEffect(
-  //   function () {
-  //     setIsTop(imdbRating > 8);
-  //   },
-  //   [imdbRating],
-  // );
-
-  // 위와 같은 코드 대신,
-  // 아래와 같이 derived state (파생된 상태)를 활용해야 한다!
-  // const isTop = imdbRating > 8;
-  // console.log(isTop);
-
-  // const [avgRating, setAvgRating] = useState(0);
-
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedId,
@@ -268,10 +349,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
     onAddWatched(newWatchedMovie);
     onCloseMovie();
-
-    // useState 의 rendering 에 대한 실험 코드2
-    // setAvgRating(Number(imdbRating));
-    // setAvgRating((avgRating) => (avgRating + userRating) / 2);
   }
 
   useEffect(
@@ -353,7 +430,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
               </p>
             </div>
           </header>
-          {/* <p>{avgRating}</p> */}
           <section>
             <div className="rating">
               {!isWatched ? (
@@ -388,6 +464,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -418,6 +495,7 @@ function WatchedSummary({ watched }) {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedMovieList({ watched, onDeleteWatched }) {
   return (
     <ul className="list">
@@ -432,6 +510,7 @@ function WatchedMovieList({ watched, onDeleteWatched }) {
   );
 }
 
+// (1) Stateless / presentational components
 function WatchedMovie({ movie, onDeleteWatched }) {
   return (
     <li>
@@ -462,32 +541,58 @@ function WatchedMovie({ movie, onDeleteWatched }) {
   );
 }
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////
 
-// ※ React Hooks
-// - Special built-in functions that allow as to "hook" into React internals
-// : Creating and accessing state from Fiber tree
-// : Registering side effects in Fiber tree
-// : Manual DOM selections
-// : ...
+// ※ 컴포넌트를 나누는 기준
+// 1. Logical Seperation Content
+// 2. Reusability
+// 3. Responsibility and Complexity
+// 4. Personal Coding Style
 
-// - Always start with "use" (useState, useEffect, etc.)
-// - Enable easy reusing of non-visual logic
-// : we can compose multiple hooks into our own custom hooks
-// - Give function components the ability to own state and run side effects
-// at different lifecycle points
-// (before v16.8 only available in class componenets)
+// ※ Component Categories
+// Most of our components will naturally fall into one of three categories:
+// (1) Stateless / presentational components
+// - No state
+// - Can receive props and simply present receieved data or other content
+// - Usually small and reusable
+// (2) Stateful components
+// - Have state
+// - Can still be reusable
+// (3) Structural components
+// - "Pages", "layouts" or "screens" of the app
+// - Result of composition
+// - Can be huge and non-reusable (but don't have to)
 
-// ※ Overview of all built-in hooks
-// 1) Most used
-// - useState, useEffect, useReducer, useContext
-// 2) Less used
-// - useRef, useCallback, useMemo, useTransition, useDeferredValue
-// - useLayoutEffect, useDebugValue, useImperativeHandle, useId
-// 3) Only for libraries
-// - useSyncExternalStore, useInsertionEffect
+///////////////////////////////////////////
 
-// ※ The rules of React hooks
-// 1) Only call hooks at the top level
-// 2) Only call hooks from React functions
-// (automatically enforced by React's ESLint rules)
+// ※ The dependency array
+// - By default, effects run after every render.
+//  We can prevent that by passing a dependency array.
+// - Without the dependency array, React doesn't know when to run the effect.
+// - Each time one of the dependencies changes, the effect will be executed again.
+// - Every state variable and prop used inside the effect MUST be included in the dependency array.
+// (Otherwise, we get a "stale closure")
+
+// ※ The mechanics of effects
+// - useEffect is like an event listener that is listening for one dependency to change.
+//  Whenever a dependency changes, it will execute the effect again.
+// - Effects react to updates to state and props used inside the effect (the dependencies).
+//  So effects are "reactive" (like state updates re-rendering the UI)
+
+// ※ Synchronization and lifecycle
+// useEffect(fn, [x, y, z]): mount 일 때와 x,y,z가 update 되어 re-render 일 때 실행
+// useEffect(fn, []): mount 일 때만 실행 (only initial render)
+// useEffect(fn): 모든 render에 대해 실행 (모든 것에 대해 동기화)
+
+//////////////////////////////////////////
+
+// ※ useEffect Cleanup function
+// - function that we can return from an effect (optional)
+// - runs on two different occasions
+//  1) before the effect is executed again
+//  2) after a component has unmounted
+// - necessary whenever the side effect keeps happening
+//   after the component has been re-rendered or unmounted
+// - each effect should do only one thing!
+//   use one useEffect hook for each side effect.
+//   this makes effect easier to clean up.
