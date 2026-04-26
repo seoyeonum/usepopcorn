@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
 
 const average = (arr) =>
@@ -169,6 +169,28 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useEffect(function () {
+    // React는 선언적이므로 DOM element를 직접 선택하지 않는다.
+    // 따라서 작동한다 하더라도 아래와 같은 방식으로 element를 참조할 수 없다.
+    // (대체 수단으로 useRef 이용 필요!)
+    //   const el = document.querySelector('.search');
+    //   console.log(el);
+    //   el.focus();
+
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === 'Enter') {
+        inputEl.current.focus();
+        setQuery('');
+      }
+    }
+
+    document.addEventListener('keydown', callback);
+    return () => document.addEventListener('keydown', callback);
+  }, []);
+
   return (
     <input
       className="search"
@@ -176,6 +198,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
@@ -511,3 +534,21 @@ function WatchedMovie({ movie, onDeleteWatched }) {
 // 1) Only call hooks at the top level
 // 2) Only call hooks from React functions
 // (automatically enforced by React's ESLint rules)
+
+////////////////////////////////////////////////////////
+
+// ※ REF with useRef
+// 1) "Box" (object) with a mutable .current property that is persisted across renders
+//  ("normal" variables are always reset)
+// 2) Two big use cases:
+// - Creating a variable that stays the same between renders
+//  (e.g. previous state, setTimeout id, etc.)
+// - Selecting and sroting DOM elements
+// 3) Refs are for data that is NOT rendered:
+//  usually only appear in event handlers of effects, not in JSX (otherwise useState)
+// 3) Do NOT read write or read .current in render logic (like state)
+
+// ※ 데이터 저장이 필요할 때
+// - 어느 지점에서 데이터가 변경되는가? =(NO)=> "const"
+// =(YES)=> component 가 re-render 되어야 하는가? =(NO)=> "Ref(useRef)"
+// =(YES)=> State(useState)
