@@ -566,3 +566,16 @@ function WatchedMovie({ movie, onDeleteWatched }) {
 // - 어느 지점에서 데이터가 변경되는가? =(NO)=> "const"
 // =(YES)=> component 가 re-render 되어야 하는가? =(NO)=> "Ref(useRef)"
 // =(YES)=> State(useState)
+
+////////////////////////////////////////////////////////
+
+// ※ Custom Hooks
+// - Custom Hooks allow us to reuse non-visual logic in multiple components
+// - One custom hook should have one purpose,
+//  to make it reusable and portable (even arcoss multiple projects)
+// - Rules of hooks also apply to custom hooks
+
+// 1) Custom Hook needs to use one or more hooks
+// 2) Function name needs to start with "use"
+// 3) Unlike components, custom hooks can recieve
+//  and return any relevant data (usaully [] or {})
