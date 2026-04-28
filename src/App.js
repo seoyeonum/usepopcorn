@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
+import { useMovies } from './useMovies';
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -8,10 +9,9 @@ const KEY = '25a08b93';
 
 export default function App() {
   const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+
   const [selectedId, setSelectedId] = useState(null);
+  const { movies, isLoading, error } = useMovies(query);
 
   // const [watched, setWatched] = useState([]);
   // 무언가를 반환하는 pure function을 state의 initial value로 설정할 수 있다.
@@ -22,6 +22,10 @@ export default function App() {
 
   // 아래와 같이 state 값을 직접 호출하면 안된다!
   // useState(localStorage.getItem("watched"))
+
+  // function handleSelectedMovie = () => ...
+  // 아래 function 정의 시 화살표 함수(위)가 아닌 방식으로 정의했기에
+  // 함수 선언 부분 이전에도 hoisting 이 가능하다!
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -48,55 +52,6 @@ export default function App() {
       localStorage.setItem('watched', JSON.stringify(watched));
     },
     [watched],
-  );
-
-  useEffect(
-    function () {
-      const controller = new AbortController();
-
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError('');
-
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal },
-          );
-
-          if (!res.ok)
-            throw new Error('Something went wrong with fetching movies');
-
-          const data = await res.json();
-          if (data.Response === 'False') throw new Error('Movie not found');
-
-          setMovies(data.Search);
-          setError('');
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            console.error(err.message);
-            setError(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError('');
-        return;
-      }
-
-      handleCloseMovie();
-      fetchMovies();
-
-      // cleanup function
-      return function () {
-        controller.abort();
-      };
-    },
-    [query],
   );
 
   return (
@@ -171,25 +126,28 @@ function Logo() {
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
-  useEffect(function () {
-    // React는 선언적이므로 DOM element를 직접 선택하지 않는다.
-    // 따라서 작동한다 하더라도 아래와 같은 방식으로 element를 참조할 수 없다.
-    // (대체 수단으로 useRef 이용 필요!)
-    //   const el = document.querySelector('.search');
-    //   console.log(el);
-    //   el.focus();
+  useEffect(
+    function () {
+      // React는 선언적이므로 DOM element를 직접 선택하지 않는다.
+      // 따라서 작동한다 하더라도 아래와 같은 방식으로 element를 참조할 수 없다.
+      // (대체 수단으로 useRef 이용 필요!)
+      //   const el = document.querySelector('.search');
+      //   console.log(el);
+      //   el.focus();
 
-    function callback(e) {
-      if (document.activeElement === inputEl.current) return;
-      if (e.code === 'Enter') {
-        inputEl.current.focus();
-        setQuery('');
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+        if (e.code === 'Enter') {
+          inputEl.current.focus();
+          setQuery('');
+        }
       }
-    }
 
-    document.addEventListener('keydown', callback);
-    return () => document.addEventListener('keydown', callback);
-  }, []);
+      document.addEventListener('keydown', callback);
+      return () => document.addEventListener('keydown', callback);
+    },
+    [setQuery],
+  );
 
   return (
     <input
