@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
-import { useMovies } from './useMovies';
-import { useLocalStorageState } from './useLocalStorage';
-import { useKey } from './useKey';
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -11,21 +8,20 @@ const KEY = '25a08b93';
 
 export default function App() {
   const [query, setQuery] = useState('');
-
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
-  const { movies, isLoading, error } = useMovies(query);
-
-  const [watched, setWatched] = useLocalStorageState([], 'watched');
 
   // const [watched, setWatched] = useState([]);
   // 무언가를 반환하는 pure function을 state의 initial value로 설정할 수 있다.
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem('watched');
+    return JSON.parse(storedValue);
+  });
 
   // 아래와 같이 state 값을 직접 호출하면 안된다!
   // useState(localStorage.getItem("watched"))
-
-  // function handleSelectedMovie = () => ...
-  // 아래 function 정의 시 화살표 함수(위)가 아닌 방식으로 정의했기에
-  // 함수 선언 부분 이전에도 hoisting 이 가능하다!
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -46,6 +42,62 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  useEffect(
+    function () {
+      localStorage.setItem('watched', JSON.stringify(watched));
+    },
+    [watched],
+  );
+
+  useEffect(
+    function () {
+      const controller = new AbortController();
+
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError('');
+
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal },
+          );
+
+          if (!res.ok)
+            throw new Error('Something went wrong with fetching movies');
+
+          const data = await res.json();
+          if (data.Response === 'False') throw new Error('Movie not found');
+
+          setMovies(data.Search);
+          setError('');
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.error(err.message);
+            setError(err.message);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError('');
+        return;
+      }
+
+      handleCloseMovie();
+      fetchMovies();
+
+      // cleanup function
+      return function () {
+        controller.abort();
+      };
+    },
+    [query],
+  );
 
   return (
     <>
@@ -119,11 +171,25 @@ function Logo() {
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
-  useKey('Enter', function () {
-    if (document.activeElement === inputEl.current) return;
-    inputEl.current.focus();
-    setQuery('');
-  });
+  useEffect(function () {
+    // React는 선언적이므로 DOM element를 직접 선택하지 않는다.
+    // 따라서 작동한다 하더라도 아래와 같은 방식으로 element를 참조할 수 없다.
+    // (대체 수단으로 useRef 이용 필요!)
+    //   const el = document.querySelector('.search');
+    //   console.log(el);
+    //   el.focus();
+
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === 'Enter') {
+        inputEl.current.focus();
+        setQuery('');
+      }
+    }
+
+    document.addEventListener('keydown', callback);
+    return () => document.addEventListener('keydown', callback);
+  }, []);
 
   return (
     <input
@@ -265,7 +331,22 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     // setAvgRating((avgRating) => (avgRating + userRating) / 2);
   }
 
-  useKey('Escape', onCloseMovie);
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === 'Escape') {
+          onCloseMovie();
+        }
+      }
+
+      document.addEventListener('keydown', callback);
+
+      return function () {
+        document.removeEventListener('keydown', callback);
+      };
+    },
+    [onCloseMovie],
+  );
 
   useEffect(
     function () {
@@ -485,16 +566,3 @@ function WatchedMovie({ movie, onDeleteWatched }) {
 // - 어느 지점에서 데이터가 변경되는가? =(NO)=> "const"
 // =(YES)=> component 가 re-render 되어야 하는가? =(NO)=> "Ref(useRef)"
 // =(YES)=> State(useState)
-
-////////////////////////////////////////////////////////
-
-// ※ Custom Hooks
-// - Custom Hooks allow us to reuse non-visual logic in multiple components
-// - One custom hook should have one purpose,
-//  to make it reusable and portable (even arcoss multiple projects)
-// - Rules of hooks also apply to custom hooks
-
-// 1) Custom Hook needs to use one or more hooks
-// 2) Function name needs to start with "use"
-// 3) Unlike components, custom hooks can recieve
-//  and return any relevant data (usaully [] or {})
